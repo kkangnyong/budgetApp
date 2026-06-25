@@ -614,7 +614,9 @@ def test_filter_by_category_returns_independent_list() -> None:
 
 def test_load_transactions_from_csv_reads_step1_file() -> None:
     """CSV loading should read step1 data and convert amount values to ints."""
-    csv_path = Path(__file__).resolve().parents[1] / "data" / "step1_transactions.csv"
+    csv_path = (
+        Path(__file__).resolve().parents[1] / "data" / "step1_transactions.csv"
+    )
 
     transactions = load_transactions_from_csv(csv_path)
 
@@ -641,7 +643,9 @@ def test_load_transactions_from_csv_reads_step1_file() -> None:
 
 def test_monthly_summary_returns_monthly_income_expense_and_net() -> None:
     """Monthly summary should aggregate income, expense, and net by month."""
-    csv_path = Path(__file__).resolve().parents[1] / "data" / "step2_transactions.csv"
+    csv_path = (
+        Path(__file__).resolve().parents[1] / "data" / "step2_transactions.csv"
+    )
     transactions = load_transactions_from_csv(csv_path)
 
     assert monthly_summary(transactions) == {
