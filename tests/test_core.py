@@ -1,6 +1,8 @@
 """Tests for budget.core."""
 
-from budget.core import add_transaction, filter_by_category, get_balance
+from pathlib import Path
+
+from budget.core import add_transaction, filter_by_category, get_balance, load_transactions_from_csv
 
 
 def test_add_transaction_increases_length() -> None:
@@ -602,3 +604,30 @@ def test_filter_by_category_returns_independent_list() -> None:
 
     assert len(transactions) == 1
     assert len(result) == 2
+
+
+def test_load_transactions_from_csv_reads_step1_file() -> None:
+    """CSV loading should read step1 data and convert amount values to ints."""
+    csv_path = Path(__file__).resolve().parents[1] / "data" / "step1_transactions.csv"
+
+    transactions = load_transactions_from_csv(csv_path)
+
+    assert len(transactions) == 10
+    assert transactions[0] == {
+        "date": "2026-01-05",
+        "type": "지출",
+        "category": "식비",
+        "description": "점심식사",
+        "amount": -12000,
+        "memo": "",
+    }
+    assert transactions[1]["amount"] == 3500000
+    assert isinstance(transactions[1]["amount"], int)
+    assert transactions[-1] == {
+        "date": "2026-01-28",
+        "type": "기타수입",
+        "category": "기타수입",
+        "description": "중고 판매",
+        "amount": 25000,
+        "memo": "중고마켓",
+    }

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+from pathlib import Path
 from typing import Any
 
 
@@ -34,3 +36,21 @@ def filter_by_category(transactions: list[dict[str, Any]], category: str) -> lis
         for transaction in transactions
         if transaction["category"].casefold() == normalized_category
     ]
+
+
+def load_transactions_from_csv(csv_path: str | Path) -> list[dict[str, Any]]:
+    """Load transactions from a CSV file and normalize the amount field."""
+    path = Path(csv_path)
+    with path.open("r", encoding="utf-8-sig", newline="") as csv_file:
+        reader = csv.DictReader(csv_file)
+        return [
+            {
+                "date": row["date"],
+                "type": row["type"],
+                "category": row["category"],
+                "description": row["description"],
+                "amount": int(row["amount"]),
+                "memo": row["memo"],
+            }
+            for row in reader
+        ]
