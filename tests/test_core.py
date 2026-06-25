@@ -2,7 +2,13 @@
 
 from pathlib import Path
 
-from budget.core import add_transaction, filter_by_category, get_balance, load_transactions_from_csv
+from budget.core import (
+    add_transaction,
+    filter_by_category,
+    get_balance,
+    load_transactions_from_csv,
+    monthly_summary,
+)
 
 
 def test_add_transaction_increases_length() -> None:
@@ -631,3 +637,20 @@ def test_load_transactions_from_csv_reads_step1_file() -> None:
         "amount": 25000,
         "memo": "중고마켓",
     }
+
+
+def test_monthly_summary_returns_monthly_income_expense_and_net() -> None:
+    """Monthly summary should aggregate income, expense, and net by month."""
+    csv_path = Path(__file__).resolve().parents[1] / "data" / "step2_transactions.csv"
+    transactions = load_transactions_from_csv(csv_path)
+
+    assert monthly_summary(transactions) == {
+        "2026-01": {"income": 135541, "expense": -3608605, "net": -3473064},
+        "2026-02": {"income": 15871780, "expense": -3333340, "net": 12538440},
+        "2026-03": {"income": 17239079, "expense": -2019428, "net": 15219651},
+    }
+
+
+def test_monthly_summary_returns_empty_dict_for_empty_list() -> None:
+    """An empty transaction list should return an empty monthly summary."""
+    assert monthly_summary([]) == {}
