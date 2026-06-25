@@ -1,6 +1,6 @@
 """Tests for budget.core."""
 
-from budget.core import add_transaction, get_balance
+from budget.core import add_transaction, filter_by_category, get_balance
 
 
 def test_add_transaction_increases_length() -> None:
@@ -519,3 +519,86 @@ def test_get_balance_matches_step2_csv_total() -> None:
     ]
 
     assert get_balance(transactions) == 24285027
+
+
+def test_filter_by_category_matches_case_insensitively() -> None:
+    """Category matching should ignore case and return matching rows only."""
+    transactions = [
+        {
+            "date": "2026-01-04",
+            "type": "지출",
+            "category": "여행",
+            "description": "항공권",
+            "amount": -979796,
+            "memo": "메모_3",
+        },
+        {
+            "date": "2026-01-14",
+            "type": "지출",
+            "category": "여행",
+            "description": "여행 경비",
+            "amount": -282323,
+            "memo": "메모_1",
+        },
+        {
+            "date": "2026-01-15",
+            "type": "수입",
+            "category": "기타수입",
+            "description": "중고 판매",
+            "amount": 135541,
+            "memo": "",
+        },
+    ]
+
+    result = filter_by_category(transactions, "여행")
+
+    assert len(result) == 2
+    assert all(transaction["category"] == "여행" for transaction in result)
+
+    mixed_case_result = filter_by_category(transactions, "여행".upper())
+    assert mixed_case_result == result
+
+
+def test_filter_by_category_returns_empty_list_for_missing_category() -> None:
+    """Unknown categories should return an empty list."""
+    transactions = [
+        {
+            "date": "2026-01-04",
+            "type": "지출",
+            "category": "여행",
+            "description": "항공권",
+            "amount": -979796,
+            "memo": "메모_3",
+        }
+    ]
+
+    assert filter_by_category(transactions, "없는카테고리") == []
+
+
+def test_filter_by_category_returns_independent_list() -> None:
+    """The returned filtered list should not affect the original list."""
+    transactions = [
+        {
+            "date": "2026-01-04",
+            "type": "지출",
+            "category": "여행",
+            "description": "항공권",
+            "amount": -979796,
+            "memo": "메모_3",
+        }
+    ]
+
+    result = filter_by_category(transactions, "여행")
+    result.append(
+        {
+            "date": "2026-01-05",
+            "type": "수입",
+            "category": "여행",
+            "description": "추가",
+            "amount": 1000,
+            "memo": "",
+        }
+    )
+
+    assert len(transactions) == 1
+    assert len(result) == 2
