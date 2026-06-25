@@ -17,3 +17,10 @@ def add_transaction(transactions: list[dict[str, Any]], transaction: dict[str, A
     }
     transactions.append(normalized_transaction)
     return transactions
+
+
+def get_balance(transactions: list[dict[str, Any]]) -> float:
+    """Return the sum of signed transaction amounts."""
+    if not transactions:
+        return 0.0
+    return float(sum(transaction["amount"] for transaction in transactions))
